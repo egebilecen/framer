@@ -1,7 +1,11 @@
 var Framer = {
     settings : {
         ctx : null,
-        fps : null
+        fps : null,
+        draw_position : {
+            x : 0,
+            y : 0
+        }
     },
     init   : function (ctx, fps) {
         if(typeof ctx === "undefined")
@@ -91,6 +95,10 @@ var Framer = {
                 return null;
         }
     },
+    set_draw_positions : function (x, y) {
+      this.settings.draw_position.x = x;
+      this.settings.draw_position.y = y;
+    },
     start_drawing : function (key, name) {
         if(this.settings.ctx === null)
             throw new DOMException("'ctx' is null. Firstly initialize the object please.");
@@ -122,7 +130,7 @@ var Framer = {
                 width_per_frame*obj.frames.width[obj.frame_counters.width],
                 height_per_frame*obj.frames.height[obj.frame_counters.height],
                 width_per_frame, height_per_frame,
-                100,100,
+                Framer.settings.draw_position.x,Framer.settings.draw_position.y,
                 width_per_frame, height_per_frame
             );
 
