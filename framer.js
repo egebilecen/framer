@@ -3,6 +3,7 @@
 * If you want to clear, you should do it by yourself.
 * */
 var Framer = {
+    temp_space : {},
     settings : {
         ctx : null,
         fps : null
@@ -144,8 +145,7 @@ var Framer = {
         var height_per_frame  = Math.floor(image.height / obj.rows);
 
         var interval_id = Math.random();
-
-        window[interval_id] = setInterval(function () {
+        this.temp_space[interval_id] = setInterval(function () {
             Framer.settings.ctx.drawImage(
                 image,
                 width_per_frame*obj.frames.width[obj.frame_counters.width],
@@ -160,7 +160,7 @@ var Framer = {
             {
                 obj.frame_counters.width  = 0;
                 obj.frame_counters.height = 0;
-                clearInterval(window[interval_id]);
+                clearInterval(Framer.temp_space[interval_id]);
             }
 
             obj.increase_frame_counter("width");
