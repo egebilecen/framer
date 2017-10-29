@@ -6,7 +6,8 @@ var Framer = {
     temp_space : {},
     settings : {
         ctx : null,
-        fps : null
+        fps : null,
+        speed_multiplier : 5
     },
     init   : function (ctx, fps) {
         if(typeof ctx === "undefined")
@@ -27,6 +28,7 @@ var Framer = {
                 cols   : 4,
                 frame_width  : [0, 1, 2], //starts from 0
                 frame_height : [3, 3, 3], //starts from 0
+                speed      : 20,
                 loop       : true,
                 auto_start : true
             });
@@ -55,6 +57,9 @@ var Framer = {
         if(typeof obj.frames.height === "undefined")
             throw new DOMException("Object's 'frames.height' is undefined.");
 
+        if(typeof obj.speed === "undefined")
+            throw new DOMException("Object's 'speed' is undefined.");
+
         if(typeof obj.loop !== "boolean")
             obj.loop = false;
 
@@ -63,7 +68,8 @@ var Framer = {
 
         obj.frame_counters = {
             width  : 0,
-            height : 0
+            height : 0,
+            frame  : 0
         };
 
         obj.draw_position = {
@@ -80,9 +86,9 @@ var Framer = {
                 this.frame_counters[where] = 0;
         };
         obj.stop = function () {
-          this.loop = false;
-          this.frame_counters.width  = 0;
-          this.frame_counters.height = 0;
+            this.loop = false;
+            this.frame_counters.width  = 0;
+            this.frame_counters.height = 0;
         };
 
         this.list[key][obj.name] = obj;
@@ -162,11 +168,16 @@ var Framer = {
                 obj.frame_counters.height = 0;
                 clearInterval(Framer.temp_space[interval_id]);
             }
+            obj.frame_counters.frame++;
 
-            obj.increase_frame_counter("width");
-            obj.increase_frame_counter("height");
+            if(obj.frame_counters.frame >= obj.speed * Framer.settings.speed_multiplier)
+            {
+                obj.increase_frame_counter("width");
+                obj.increase_frame_counter("height");
+                obj.frame_counters.frame = 0;
+            }
 
-        }, 1000 / this.settings.fps + 250);
+        }, 1000 / this.settings.fps);
     },
     list : {}
 };
