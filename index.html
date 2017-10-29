@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Framer</title>
+    <script src="framer.js"></script>
+</head>
+<body>
+    <canvas width="500" height="500" style="border:1px solid black;" id="canvas"></canvas>
+
+    <script>
+        Framer.init(
+            document.getElementById("canvas").getContext("2d")
+        );
+
+        var character_set = new Image();
+        character_set.src = "2.png";
+        character_set.onload = function () {
+            Framer.create("human",{
+                name   : "right_side_movement",
+                img    : character_set,
+                rows  : 4,
+                cols  : 3,
+                frames  : {
+                    width  : [0,1,2],
+                    height : [1,1,1]
+                },
+                loop       : true,
+                auto_start : false
+            });
+
+            Framer.create("human",{
+                name : "left_side_movement",
+                img  : character_set,
+                rows : 4,
+                cols : 3,
+                frames  : {
+                    width  : [0,1,2],
+                    height : [1,1,1]
+                },
+                loop : false,
+                auto_start : true
+            });
+        };
+    </script>
+</body>
+</html>
