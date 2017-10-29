@@ -28,7 +28,7 @@ var Framer = {
                 cols   : 4,
                 frame_width  : [0, 1, 2], //starts from 0
                 frame_height : [3, 3, 3], //starts from 0
-                speed      : 20,
+                speed      : 5, //higher speed, slower drawing
                 loop       : true,
                 auto_start : true
             });
