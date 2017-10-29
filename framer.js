@@ -1,11 +1,11 @@
+/*
+* Note: This script is not clearing canvas automatically.
+* If you want to clear, you should do it by yourself.
+* */
 var Framer = {
     settings : {
         ctx : null,
-        fps : null,
-        draw_position : {
-            x : 0,
-            y : 0
-        }
+        fps : null
     },
     init   : function (ctx, fps) {
         if(typeof ctx === "undefined")
@@ -65,6 +65,11 @@ var Framer = {
             height : 0
         };
 
+        obj.draw_position = {
+            x : 0,
+            y : 0
+        };
+
         obj.increase_frame_counter = function (where) {
             if(!this.frame_counters.hasOwnProperty(where))
                 throw new DOMException("Cannot find '"+where+"' in the 'frame_counters'");
@@ -95,9 +100,24 @@ var Framer = {
                 return null;
         }
     },
-    set_draw_positions : function (x, y) {
-      this.settings.draw_position.x = x;
-      this.settings.draw_position.y = y;
+    set_draw_positions : function (key, name, x, y) {
+        if(typeof key === "undefined")
+            throw new DOMException("Paramater 'key' is empty.");
+
+        if(typeof name === "undefined")
+            throw new DOMException("Paramater 'name' is empty.");
+
+        key  = String(key);
+        name = String(name);
+
+        if(!this.list.hasOwnProperty(key))
+            throw new DOMException("'"+key+"' not in the 'list'!");
+
+        if(!this.list[key].hasOwnProperty(name))
+            throw new DOMException("'"+key+"' has no child named '"+name+"'!");
+
+        this.list[key][name].draw_position.x = x;
+        this.list[key][name].draw_position.y = y;
     },
     start_drawing : function (key, name) {
         if(this.settings.ctx === null)
@@ -123,22 +143,24 @@ var Framer = {
         var width_per_frame   = Math.floor(image.width / obj.cols);
         var height_per_frame  = Math.floor(image.height / obj.rows);
 
-        var framer_interval = setInterval(function () {
-            Framer.settings.ctx.clearRect(0,0,Framer.settings.ctx.canvas.width, Framer.settings.ctx.canvas.height);
+        var interval_id = Math.random();
+
+        window[interval_id] = setInterval(function () {
             Framer.settings.ctx.drawImage(
                 image,
                 width_per_frame*obj.frames.width[obj.frame_counters.width],
                 height_per_frame*obj.frames.height[obj.frame_counters.height],
                 width_per_frame, height_per_frame,
-                Framer.settings.draw_position.x,Framer.settings.draw_position.y,
+                obj.draw_position.x,obj.draw_position.y,
                 width_per_frame, height_per_frame
             );
 
             if(!obj.loop && obj.frame_counters.width === obj.frames.width.length &&
                 obj.frame_counters.height === obj.frames.height.length)
             {
-                Framer.settings.ctx.clearRect(0,0,Framer.settings.ctx.canvas.width, Framer.settings.ctx.canvas.height);
-                clearInterval(framer_interval);
+                obj.frame_counters.width  = 0;
+                obj.frame_counters.height = 0;
+                clearInterval(window[interval_id]);
             }
 
             obj.increase_frame_counter("width");
