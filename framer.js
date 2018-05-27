@@ -94,7 +94,7 @@ var Framer = {
         this.list[key][obj.name] = obj;
 
         if(obj.auto_start)
-            this.start_drawing(key, obj.name);
+            this.start_auto_drawing(key, obj.name);
     },
     get_list : function(key){
         if(typeof key !== "string")
@@ -126,16 +126,7 @@ var Framer = {
         this.list[key][name].draw_position.x = x;
         this.list[key][name].draw_position.y = y;
     },
-    start_drawing : function (key, name) {
-        if(this.settings.ctx === null)
-            throw new DOMException("'ctx' is null. Firstly initialize the object please.");
-
-        if(typeof key === "undefined")
-            throw new DOMException("Paramater 'key' is empty.");
-
-        if(typeof name === "undefined")
-            throw new DOMException("Paramater 'name' is empty.");
-
+    do_drawing : function(key, name){
         key  = String(key);
         name = String(name);
 
@@ -150,33 +141,44 @@ var Framer = {
         var width_per_frame   = Math.floor(image.width / obj.cols);
         var height_per_frame  = Math.floor(image.height / obj.rows);
 
+        Framer.settings.ctx.drawImage(
+            image,
+            width_per_frame*obj.frames.width[obj.frame_counters.width],
+            height_per_frame*obj.frames.height[obj.frame_counters.height],
+            width_per_frame, height_per_frame,
+            obj.draw_position.x,obj.draw_position.y,
+            width_per_frame, height_per_frame
+        );
+
+        if(!obj.loop && obj.frame_counters.width === obj.frames.width.length &&
+            obj.frame_counters.height === obj.frames.height.length)
+        {
+            obj.frame_counters.width  = 0;
+            obj.frame_counters.height = 0;
+            clearInterval(Framer.temp_space[interval_id]);
+        }
+        obj.frame_counters.frame++;
+
+        if(obj.frame_counters.frame >= obj.speed * Framer.settings.speed_multiplier)
+        {
+            obj.increase_frame_counter("width");
+            obj.increase_frame_counter("height");
+            obj.frame_counters.frame = 0;
+        }
+    },
+    start_auto_drawing : function (key, name) {
+        if(this.settings.ctx === null)
+            throw new DOMException("'ctx' is null. Firstly initialize the object please.");
+
+        if(typeof key === "undefined")
+            throw new DOMException("Paramater 'key' is empty.");
+
+        if(typeof name === "undefined")
+            throw new DOMException("Paramater 'name' is empty.");
+
         var interval_id = Math.random();
         this.temp_space[interval_id] = setInterval(function () {
-            Framer.settings.ctx.drawImage(
-                image,
-                width_per_frame*obj.frames.width[obj.frame_counters.width],
-                height_per_frame*obj.frames.height[obj.frame_counters.height],
-                width_per_frame, height_per_frame,
-                obj.draw_position.x,obj.draw_position.y,
-                width_per_frame, height_per_frame
-            );
-
-            if(!obj.loop && obj.frame_counters.width === obj.frames.width.length &&
-                obj.frame_counters.height === obj.frames.height.length)
-            {
-                obj.frame_counters.width  = 0;
-                obj.frame_counters.height = 0;
-                clearInterval(Framer.temp_space[interval_id]);
-            }
-            obj.frame_counters.frame++;
-
-            if(obj.frame_counters.frame >= obj.speed * Framer.settings.speed_multiplier)
-            {
-                obj.increase_frame_counter("width");
-                obj.increase_frame_counter("height");
-                obj.frame_counters.frame = 0;
-            }
-
+            Framer.do_drawing(key, name);
         }, 1000 / this.settings.fps);
     },
     list : {}
